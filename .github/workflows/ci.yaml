@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+  schedule:
+    - cron: "0 12 * * 0"
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint on Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: crate-ci/typos@v1.0.4
+  test:
+    name: Tests on Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: "recursive"
+      - uses: goto-bus-stop/setup-zig@v2
+      - uses: Hanaasagi/zig-action-cache@v1.1.2
+        with:
+          cache-on-failure: true
+      - run: zig version
+      - run: zig env
+      - name: Build
+        run: zig build --verbose
+      - name: Run Tests
+        run: zig build test
