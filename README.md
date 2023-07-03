@@ -37,7 +37,7 @@ Command './zig-out/bin/bench --simd'
      P_25 .. P_75:    0.019 s .. 0.019 s  (IQR = 0.001 s)
 ```
 
-<img width="400" height="400" src="https://github.com/dying-will-bullet/base64-simd/assets/9482395/3443fc73-62b0-4e00-bab6-a1a86e416422">
+<img width="400" height="400" src="https://github.com/dying-will-bullet/base64-simd/assets/9482395/72a93668-afdb-48b3-b33b-b7b30aed4659">
 
 ## LICENSE
 
