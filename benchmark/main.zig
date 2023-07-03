@@ -2,7 +2,7 @@ const std = @import("std");
 const base64 = @import("base64");
 
 fn runBench(use_std: bool) !usize {
-    var file = try std.fs.cwd().openFile("./data", .{});
+    var file = try std.fs.cwd().openFile("./benchmark/data", .{});
     defer file.close();
 
     var buf_reader = std.io.bufferedReader(file.reader());

@@ -135,4 +135,27 @@ pub fn build(b: *std.Build) void {
     // This will evaluate the `test` step rather than the default, which is "install".
     const test_step = b.step("test", "Run library tests");
     test_step.dependOn(&run_main_tests.step);
+
+    // Benchmark
+    const bench_exe = b.addExecutable(.{
+        .name = "bench",
+        .root_source_file = .{ .path = "./benchmark/main.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
+
+    const mod = b.addModule("base64", .{
+        .source_file = .{ .path = "src/lib.zig" },
+    });
+    bench_exe.addModule("base64", mod);
+    bench_exe.linkLibC();
+    bench_exe.addIncludePath("deps/base64/include");
+    bench_exe.linkLibrary(lib64);
+
+    b.installArtifact(bench_exe);
+    const run_cmd = b.addRunArtifact(bench_exe);
+
+    run_cmd.step.dependOn(b.getInstallStep());
+    const run_step = b.step("bench", "Run the bench mark");
+    run_step.dependOn(&run_cmd.step);
 }

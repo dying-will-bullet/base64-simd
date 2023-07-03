@@ -3,6 +3,10 @@
 import random
 import string
 
+"""
+Generate Benchmark souce data
+"""
+
 
 def generate_random_string(length: int) -> str:
     letters_and_digits = string.ascii_letters + string.digits
