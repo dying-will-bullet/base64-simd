@@ -29,6 +29,8 @@ jobs:
           cache-on-failure: true
       - run: zig version
       - run: zig env
+      - name: Build lib-base64
+        run: cd deps/base64 && make
       - name: Build
         run: zig build --verbose
       - name: Run Tests
