@@ -1,6 +1,8 @@
 # base64-simd
 
-### Benchmark
+Zig binding of [aklomp/base64](https://github.com/aklomp/base64).
+
+## Benchmark
 
 - ArchLinux 6.3.9-arch1-1
 - CPU: AMD Ryzen 7 5800H with Radeon Graphics @ 16x 3.2GHz
@@ -35,4 +37,11 @@ Command './zig-out/bin/bench --simd'
      P_25 .. P_75:    0.019 s .. 0.019 s  (IQR = 0.001 s)
 ```
 
-![Figure_3](https://github.com/dying-will-bullet/base64-simd/assets/9482395/3443fc73-62b0-4e00-bab6-a1a86e416422)
+<img width="400" height="400" src="https://github.com/dying-will-bullet/base64-simd/assets/9482395/3443fc73-62b0-4e00-bab6-a1a86e416422">
+
+## LICENSE
+
+This repository is licensed under the BSD 2-clause License. See the LICENSE file.
+
+1. [aklomp/base64 LICENSE](https://github.com/dying-will-bullet/base64-simd/blob/master/LICENSE)
+2. [dying-will-bullet/base64-simd LICENSE](https://github.com/aklomp/base64/blob/master/LICENSE)
