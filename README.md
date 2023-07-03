@@ -34,3 +34,5 @@ Command './zig-out/bin/bench --simd'
      P_05 .. P_95:    0.018 s .. 0.020 s
      P_25 .. P_75:    0.019 s .. 0.019 s  (IQR = 0.001 s)
 ```
+
+![Figure_3](https://github.com/dying-will-bullet/base64-simd/assets/9482395/3443fc73-62b0-4e00-bab6-a1a86e416422)
