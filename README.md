@@ -1,9 +1,21 @@
-# base64
+# base64-simd
 
-Create a project using this template and run following command to replace project name.
+1. Clone this repo and it's submodules.
 
-```Bash
-find . -type f -exec sed -i "s/base64/<YOUR PROJECT NAME>/g" {} \;
+```
+$ git clone --recurse-submodules https://github.com/dying-will-bullet/base64-simd
+
 ```
 
-Then [add a license to your project](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/adding-a-license-to-a-repository).
+2. Build deps.
+
+```
+$ cd base64-simd/deps/base64
+$ make
+```
+
+3. Run tests
+
+```
+zig build test
+```
