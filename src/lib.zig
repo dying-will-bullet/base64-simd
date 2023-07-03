@@ -48,7 +48,7 @@ pub fn b64encode(s: []const u8, out: []u8, flag: Flag) []const u8 {
 pub fn b64decode(s: []const u8, out: []u8, flag: Flag) ![]const u8 {
     var out_len: usize = undefined;
     // Returns 1 for success,
-    // and 0 when a decode error has occured due to invalid input.
+    // and 0 when a decode error has occurred due to invalid input.
     // Returns -1 if the chosen codec is not included in the current build.
     const ret = clib.base64_decode(s.ptr, s.len, out.ptr, &out_len, @intFromEnum(flag));
     if (ret == 1) {
