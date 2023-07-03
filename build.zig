@@ -23,6 +23,9 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
+    lib.linkLibC();
+    lib.addIncludePath("deps/base64/include");
+    lib.addObjectFile("deps/base64/lib/libbase64.o");
 
     // This declares intent for the library to be installed into the standard
     // location when the user invokes the "install" step (the default step when
@@ -36,6 +39,9 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
+    main_tests.linkLibC();
+    main_tests.addIncludePath("deps/base64/include");
+    main_tests.addObjectFile("deps/base64/lib/libbase64.o");
 
     const run_main_tests = b.addRunArtifact(main_tests);
 
