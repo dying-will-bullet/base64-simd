@@ -25,6 +25,45 @@ pub const Flag = enum(c_int) {
     avx512 = 1 << 8,
 };
 
+/// The `b64encode` function encodes a given input byte string `s` using Base64 encoding,
+/// and stores the result in the `out`.
+/// Set flags to `.default` for the default behavior, which is runtime feature detection on x86,
+/// a compile-time fixed codec on ARM, and the plain codec on other platforms.
+/// See more flags in `Flag` enum.
+///
+/// Returns a byte string representing the encoded data stored in the `out buffer.
+pub fn b64encode(s: []const u8, out: []u8, flag: Flag) []const u8 {
+    var out_len: usize = undefined;
+    clib.base64_encode(s.ptr, s.len, out.ptr, &out_len, @intFromEnum(flag));
+
+    return out[0..out_len];
+}
+
+/// The `b64decode` function decodes a given Base64 encoded byte string `s`
+/// and stores the result in the `out`.
+///
+/// Returns abyte string representing the decoded data stored in the `out` buffer.
+pub fn b64decode(s: []const u8, out: []u8, flag: Flag) ![]const u8 {
+    var out_len: usize = undefined;
+    const ret = clib.base64_decode(s.ptr, s.len, out.ptr, &out_len, @intFromEnum(flag));
+
+    switch (ret) {
+        1 => {
+            return out[0..out_len];
+        },
+        0 => {
+            return error.DecodingError;
+        },
+        -1 => {
+            return error.CodecNotIncluded;
+        },
+        else => {
+            unreachable;
+        },
+    }
+}
+
+/// Base64 Streaming Encoder
 pub const b64StreamEncoder = struct {
     state: clib.struct_base64_state,
     flag: Flag,
@@ -53,26 +92,7 @@ pub const b64StreamEncoder = struct {
     }
 };
 
-test "test b64StreamEncoder" {
-    const allocator = testing.allocator;
-    var res = std.ArrayList(u8).init(allocator);
-    defer res.deinit();
-
-    const s = [_][]const u8{ "H", "e", "l", "l", "o", " ", "W", "o", "r", "l", "d" };
-
-    var out: [4]u8 = undefined;
-    var encoder = b64StreamEncoder.init(.default);
-
-    for (s) |c| {
-        const part = encoder.update(c, &out);
-        try res.appendSlice(part);
-    }
-
-    try res.appendSlice(encoder.final(&out));
-
-    try testing.expectEqualStrings("SGVsbG8gV29ybGQ=", res.items);
-}
-
+/// Base64 Streaming Decoder
 pub const b64StreamDecoder = struct {
     state: clib.struct_base64_state,
     flag: Flag,
@@ -108,6 +128,53 @@ pub const b64StreamDecoder = struct {
     }
 };
 
+test "base64 encode" {
+    const s = "Hello World";
+
+    var out: [32]u8 = undefined;
+    const res = b64encode(s, &out, .default);
+
+    try testing.expectEqualStrings("SGVsbG8gV29ybGQ=", res);
+}
+
+test "base64 decode" {
+    const s = "SGVsbG8gV29ybGQ=";
+
+    var out: [32]u8 = undefined;
+    const res = try b64decode(s, &out, .default);
+
+    try testing.expectEqualStrings("Hello World", res);
+}
+
+test "base64 decode invalid" {
+    const s = "SGVsbG8gV29ybGQ%=";
+
+    var out: [32]u8 = undefined;
+    const res = b64decode(s, &out, .default);
+
+    try testing.expectError(Error.DecodingError, res);
+}
+
+test "test b64StreamEncoder" {
+    const allocator = testing.allocator;
+    var res = std.ArrayList(u8).init(allocator);
+    defer res.deinit();
+
+    const s = [_][]const u8{ "H", "e", "l", "l", "o", " ", "W", "o", "r", "l", "d" };
+
+    var out: [4]u8 = undefined;
+    var encoder = b64StreamEncoder.init(.default);
+
+    for (s) |c| {
+        const part = encoder.update(c, &out);
+        try res.appendSlice(part);
+    }
+
+    try res.appendSlice(encoder.final(&out));
+
+    try testing.expectEqualStrings("SGVsbG8gV29ybGQ=", res.items);
+}
+
 test "test b64StreamDecoder" {
     const allocator = testing.allocator;
     var res = std.ArrayList(u8).init(allocator);
@@ -126,53 +193,4 @@ test "test b64StreamDecoder" {
     }
 
     try testing.expectEqualStrings("Hello World", res.items);
-}
-
-pub fn b64encode(s: []const u8, out: []u8, flag: Flag) []const u8 {
-    var out_len: usize = undefined;
-
-    clib.base64_encode(s.ptr, s.len, out.ptr, &out_len, @intFromEnum(flag));
-
-    return out[0..out_len];
-}
-
-test "base64 encode" {
-    const s = "Hello World";
-
-    var out: [32]u8 = undefined;
-    const res = b64encode(s, &out, .default);
-
-    try testing.expectEqualStrings("SGVsbG8gV29ybGQ=", res);
-}
-
-pub fn b64decode(s: []const u8, out: []u8, flag: Flag) ![]const u8 {
-    var out_len: usize = undefined;
-    // Returns 1 for success,
-    // and 0 when a decode error has occurred due to invalid input.
-    // Returns -1 if the chosen codec is not included in the current build.
-    const ret = clib.base64_decode(s.ptr, s.len, out.ptr, &out_len, @intFromEnum(flag));
-
-    switch (ret) {
-        1 => {
-            return out[0..out_len];
-        },
-        0 => {
-            return error.DecodingError;
-        },
-        -1 => {
-            return error.CodecNotIncluded;
-        },
-        else => {
-            unreachable;
-        },
-    }
-}
-
-test "base64 decode" {
-    const s = "SGVsbG8gV29ybGQ=";
-
-    var out: [32]u8 = undefined;
-    const res = try b64decode(s, &out, .default);
-
-    try testing.expectEqualStrings("Hello World", res);
 }
