@@ -79,7 +79,7 @@ pub const b64StreamEncoder = struct {
         return self;
     }
 
-    pub fn update(self: *Self, s: []const u8, out: []u8) []const u8 {
+    pub fn encode(self: *Self, s: []const u8, out: []u8) []const u8 {
         var out_len: usize = undefined;
         clib.base64_stream_encode(&self.state, s.ptr, s.len, out.ptr, &out_len);
         return out[0..out_len];
@@ -108,7 +108,7 @@ pub const b64StreamDecoder = struct {
         return self;
     }
 
-    pub fn update(self: *Self, s: []const u8, out: []u8) ![]const u8 {
+    pub fn decode(self: *Self, s: []const u8, out: []u8) ![]const u8 {
         var out_len: usize = undefined;
         const ret = clib.base64_stream_decode(&self.state, s.ptr, s.len, out.ptr, &out_len);
         switch (ret) {
@@ -166,7 +166,7 @@ test "test b64StreamEncoder" {
     var encoder = b64StreamEncoder.init(.default);
 
     for (s) |c| {
-        const part = encoder.update(c, &out);
+        const part = encoder.encode(c, &out);
         try res.appendSlice(part);
     }
 
@@ -188,7 +188,7 @@ test "test b64StreamDecoder" {
     var decoder = b64StreamDecoder.init(.default);
 
     for (s) |c| {
-        const part = try decoder.update(c, &out);
+        const part = try decoder.decode(c, &out);
         try res.appendSlice(part);
     }
 
