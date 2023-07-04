@@ -7,6 +7,7 @@ Make base64 encoding/decoding faster and simpler.
 This is a Zig binding for [aklomp/base64](https://github.com/aklomp/base64),
 accelerated with SIMD. It could encode at 1.5 times the speed of the standard library.
 
+- [Getting Started](#getting-started)
 - [API Reference](#api-reference)
   - [b64encode](#b64encode)
     - [Example](#example)
@@ -18,6 +19,65 @@ accelerated with SIMD. It could encode at 1.5 times the speed of the standard li
   - [Run the benchmark](#run-the-benchmark)
   - [Benchmark results](#benchmark-results)
 - [LICENSE](#license)
+
+## Getting Started
+
+There can be different installation ways, and here is an example of using submodules for installation.
+Create a new project with `zig init-exe`. Then add this repo as a git submodule,
+assuming that all your dependencies are stored in the `deps` directory.
+
+```
+$ mkdir deps && cd deps
+$ git clone --recurse-submodules https://github.com/dying-will-bullet/base64-simd.git
+```
+
+Then add the following to your `build.zig`
+
+```diff
+diff --git a/build.zig b/build.zig
+index 9faac30..4ecd5cb 100644
+--- a/build.zig
++++ b/build.zig
+@@ -1,4 +1,5 @@
+ const std = @import("std");
++const base64 = @import("deps/base64-simd/build.zig");
+
+ // Although this function looks imperative, note that its job is to
+ // declaratively construct a build graph that will be executed by an external
+@@ -24,6 +25,14 @@ pub fn build(b: *std.Build) void {
+         .optimize = optimize,
+     });
+
++    const base64_mod = b.addModule("base64", .{
++        .source_file = .{ .path = "deps/base64-simd/src/lib.zig" },
++    });
++    // Add the base64 module
++    exe.addModule("base64", base64_mod);
++    // Link
++    base64.buildAndLink(b, exe) catch @panic("Failed to link base64");
++
+     // This declares intent for the executable to be installed into the
+     // standard location when the user invokes the "install" step (the default
+     // step when running `zig build`).
+```
+
+Edit `src/main.zig`
+
+```zig
+const std = @import("std");
+const base64 = @import("base64");
+
+pub fn main() !void {
+    const s = "Hello World";
+
+    var out: [32]u8 = undefined;
+    const res = base64.b64encode(s, &out, .default);
+
+    std.debug.print("{s}\n", .{res});
+}
+```
+
+Execute `zig build run` and you will see the base64 encoded string of `Hello World`.
 
 ## API Reference
 
