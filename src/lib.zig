@@ -6,7 +6,10 @@ const clib = @cImport({
 });
 
 pub const Error = error{
-    InvalidInput,
+    /// such as an invalid character.
+    DecodingError,
+    /// the chosen codec is not included in the current build.
+    CodecNotIncluded,
 };
 
 pub const Flag = enum(c_int) {
@@ -85,11 +88,23 @@ pub const b64StreamDecoder = struct {
         return self;
     }
 
-    pub fn update(self: *Self, s: []const u8, out: []u8) []const u8 {
+    pub fn update(self: *Self, s: []const u8, out: []u8) ![]const u8 {
         var out_len: usize = undefined;
-        // TODO: error
-        _ = clib.base64_stream_decode(&self.state, s.ptr, s.len, out.ptr, &out_len);
-        return out[0..out_len];
+        const ret = clib.base64_stream_decode(&self.state, s.ptr, s.len, out.ptr, &out_len);
+        switch (ret) {
+            1 => {
+                return out[0..out_len];
+            },
+            0 => {
+                return error.DecodingError;
+            },
+            -1 => {
+                return error.CodecNotIncluded;
+            },
+            else => {
+                unreachable;
+            },
+        }
     }
 };
 
@@ -106,7 +121,7 @@ test "test b64StreamDecoder" {
     var decoder = b64StreamDecoder.init(.default);
 
     for (s) |c| {
-        const part = decoder.update(c, &out);
+        const part = try decoder.update(c, &out);
         try res.appendSlice(part);
     }
 
@@ -136,16 +151,21 @@ pub fn b64decode(s: []const u8, out: []u8, flag: Flag) ![]const u8 {
     // and 0 when a decode error has occurred due to invalid input.
     // Returns -1 if the chosen codec is not included in the current build.
     const ret = clib.base64_decode(s.ptr, s.len, out.ptr, &out_len, @intFromEnum(flag));
-    if (ret == 1) {
-        return out[0..out_len];
+
+    switch (ret) {
+        1 => {
+            return out[0..out_len];
+        },
+        0 => {
+            return error.DecodingError;
+        },
+        -1 => {
+            return error.CodecNotIncluded;
+        },
+        else => {
+            unreachable;
+        },
     }
-    if (ret == 0) {
-        return error.InvalidInput;
-    }
-    if (ret == -1) {
-        return error.InvalidInput;
-    }
-    unreachable;
 }
 
 test "base64 decode" {
