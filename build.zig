@@ -10,7 +10,7 @@ pub fn generateConfig() !void {
 
     switch (builtin.cpu.arch) {
         .x86_64 => {
-            if (std.Target.x86.featureSetHas(builtin.cpu.features, .avx512f)) {
+            if (std.Target.x86.featureSetHas(builtin.cpu.features, .avx512vbmi)) {
                 _ = try stream.write("#define HAVE_AVX512 1\n");
             } else {
                 _ = try stream.write("#define HAVE_AVX512 0\n");
