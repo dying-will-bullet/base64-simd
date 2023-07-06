@@ -8,4 +8,8 @@ set -ex
 # build release
 zig build -Doptimize=ReleaseFast
 
-hyperfine -r 1000 -N --warmup 10 "./zig-out/bin/bench --std" "./zig-out/bin/bench --simd" --export-json benchmark/result.json
+echo "Start encoding benchmark..."
+hyperfine -r 1000 -N --warmup 100 "./zig-out/bin/bench --encode --std" "./zig-out/bin/bench --encode --simd" --export-json benchmark/report/encode-report.json
+
+echo "Start decoding benchmark..."
+hyperfine -r 1000 -N --warmup 100 "./zig-out/bin/bench --decode --std" "./zig-out/bin/bench --decode --simd" --export-json benchmark/report/decode-report.json

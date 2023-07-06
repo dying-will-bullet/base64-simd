@@ -1,4 +1,5 @@
 **/zig-out/
 **/zig-cache/
-**/data
 **/result.json
+**/testdata/
+**/*-report.json
