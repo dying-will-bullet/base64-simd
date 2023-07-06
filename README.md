@@ -5,20 +5,24 @@
 
 Make base64 encoding/decoding faster and simpler.
 This is a Zig binding for [aklomp/base64](https://github.com/aklomp/base64),
-accelerated with SIMD. It could encode at 1.5 times the speed of the standard library.
+accelerated with SIMD. It could encode at 1.45 times the speed of the standard library.
 
-- [Getting Started](#getting-started)
-- [API Reference](#api-reference)
-  - [b64encode](#b64encode)
-    - [Example](#example)
-  - [b64decode](#b64decode)
-    - [Example](#example-1)
-  - [b64StreamEncoder](#b64streamencoder)
-  - [b64StreamDecoder](#b64streamdecoder)
-- [Benchmark](#benchmark)
-  - [Run the benchmark](#run-the-benchmark)
-  - [Benchmark results](#benchmark-results)
-- [LICENSE](#license)
+- [ base64-simd ](#-base64-simd--)
+  - [Getting Started](#getting-started)
+  - [API Reference](#api-reference)
+    - [b64encode](#b64encode)
+      - [Example](#example)
+    - [b64decode](#b64decode)
+      - [Example](#example-1)
+    - [b64StreamEncoder](#b64streamencoder)
+    - [b64StreamDecoder](#b64streamdecoder)
+  - [Benchmark](#benchmark)
+    - [Run the benchmark](#run-the-benchmark)
+    - [Benchmark results](#benchmark-results)
+      - [Environment](#environment)
+      - [Encoding](#encoding)
+      - [Decoding](#decoding)
+  - [LICENSE](#license)
 
 ## Getting Started
 
@@ -180,40 +184,79 @@ The report will be generated in `benchmark/result.json`.
 
 ### Benchmark results
 
+#### Environment
+
 - ArchLinux 6.3.9-arch1-1
 - CPU: AMD Ryzen 7 5800H with Radeon Graphics @ 16x 3.2GHz
 - Zig: 0.11.0-dev.3739+939e4d81e, `-Doptimize=ReleaseFast`
 - Benchmark Tools: hyperfine 1.17.0
 
-1000 rounds of testing, encoding 9990 records each time.
+#### Encoding
+
+1000 rounds of testing, encoding 10000 records each time.
 
 ```
-Command './zig-out/bin/bench --std'
+Command './zig-out/bin/bench --encode --std'
   runs:       1000
-  mean:      0.030 s
+  mean:      0.039 s
   stddev:    0.001 s
-  median:    0.030 s
-  min:       0.029 s
-  max:       0.036 s
+  median:    0.039 s
+  min:       0.037 s
+  max:       0.051 s
 
   percentiles:
-     P_05 .. P_95:    0.029 s .. 0.032 s
-     P_25 .. P_75:    0.030 s .. 0.031 s  (IQR = 0.001 s)
+     P_05 .. P_95:    0.038 s .. 0.041 s
+     P_25 .. P_75:    0.038 s .. 0.039 s  (IQR = 0.001 s)
 
-Command './zig-out/bin/bench --simd'
+Command './zig-out/bin/bench --encode --simd'
   runs:       1000
-  mean:      0.019 s
-  stddev:    0.001 s
-  median:    0.019 s
-  min:       0.018 s
-  max:       0.024 s
+  mean:      0.027 s
+  stddev:    0.002 s
+  median:    0.026 s
+  min:       0.025 s
+  max:       0.067 s
 
   percentiles:
-     P_05 .. P_95:    0.018 s .. 0.020 s
-     P_25 .. P_75:    0.019 s .. 0.019 s  (IQR = 0.001 s)
+     P_05 .. P_95:    0.026 s .. 0.030 s
+     P_25 .. P_75:    0.026 s .. 0.027 s  (IQR = 0.001 s)
+
 ```
 
-<img width="400" height="400" src="https://github.com/dying-will-bullet/base64-simd/assets/9482395/72a93668-afdb-48b3-b33b-b7b30aed4659">
+#### Decoding
+
+1000 rounds of testing, encoding 10000 records each time.
+
+```
+Command './zig-out/bin/bench --decode --std'
+  runs:       1000
+  mean:      0.042 s
+  stddev:    0.003 s
+  median:    0.041 s
+  min:       0.039 s
+  max:       0.104 s
+
+  percentiles:
+     P_05 .. P_95:    0.040 s .. 0.045 s
+     P_25 .. P_75:    0.040 s .. 0.042 s  (IQR = 0.002 s)
+
+Command './zig-out/bin/bench --decode --simd'
+  runs:       1000
+  mean:      0.036 s
+  stddev:    0.003 s
+  median:    0.035 s
+  min:       0.033 s
+  max:       0.101 s
+
+  percentiles:
+     P_05 .. P_95:    0.034 s .. 0.041 s
+     P_25 .. P_75:    0.034 s .. 0.036 s  (IQR = 0.002 s)
+
+```
+
+<div>
+<img align="left" width="400" height="400" src="https://github.com/dying-will-bullet/base64-simd/assets/9482395/9da58bd1-7466-4c02-9bac-f9fce043749f">
+<img width="400" height="400" src="https://github.com/dying-will-bullet/base64-simd/assets/9482395/ba1f38de-8e56-408e-9715-4755c57ecba8">
+</div>
 
 ## LICENSE
 
