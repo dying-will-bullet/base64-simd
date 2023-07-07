@@ -7,22 +7,21 @@ Make base64 encoding/decoding faster and simpler.
 This is a Zig binding for [aklomp/base64](https://github.com/aklomp/base64),
 accelerated with SIMD. It could encode at 1.45 times the speed of the standard library.
 
-- [ base64-simd ](#-base64-simd--)
-  - [Getting Started](#getting-started)
-  - [API Reference](#api-reference)
-    - [b64encode](#b64encode)
-      - [Example](#example)
-    - [b64decode](#b64decode)
-      - [Example](#example-1)
-    - [b64StreamEncoder](#b64streamencoder)
-    - [b64StreamDecoder](#b64streamdecoder)
-  - [Benchmark](#benchmark)
-    - [Run the benchmark](#run-the-benchmark)
-    - [Benchmark results](#benchmark-results)
-      - [Environment](#environment)
-      - [Encoding](#encoding)
-      - [Decoding](#decoding)
-  - [LICENSE](#license)
+- [Getting Started](#getting-started)
+- [API Reference](#api-reference)
+  - [b64encode](#b64encode)
+    - [Example](#example)
+  - [b64decode](#b64decode)
+    - [Example](#example-1)
+  - [b64StreamEncoder](#b64streamencoder)
+  - [b64StreamDecoder](#b64streamdecoder)
+- [Benchmark](#benchmark)
+  - [Run the benchmark](#run-the-benchmark)
+  - [Benchmark results](#benchmark-results)
+    - [Environment](#environment)
+    - [Encoding](#encoding)
+    - [Decoding](#decoding)
+- [LICENSE](#license)
 
 ## Getting Started
 
