@@ -90,21 +90,21 @@ fn buildLibBase64(b: *Build, step: *CompileStep) !*CompileStep {
     lib64.linkLibC();
     // C Source
     inline for (source_files) |file| {
-        lib64.addCSourceFile(
-            try std.fs.path.join(b.allocator, &.{ dir(), file }),
-            &.{
+        lib64.addCSourceFile(.{
+            .file = .{ .path = try std.fs.path.join(b.allocator, &.{ dir(), file }) },
+            .flags = &.{
                 "-std=c99",
                 "-O3",
                 "-Wall",
                 "-Wextra",
                 "-pedantic",
             },
-        );
+        });
     }
     // config.h
-    lib64.addIncludePath(try std.fs.path.join(b.allocator, &.{ dir(), "deps/base64/lib" }));
+    lib64.addIncludePath(.{ .path = try std.fs.path.join(b.allocator, &.{ dir(), "deps/base64/lib" }) });
     // header
-    step.addIncludePath(try std.fs.path.join(b.allocator, &.{ dir(), "deps/base64/include" }));
+    step.addIncludePath(.{ .path = try std.fs.path.join(b.allocator, &.{ dir(), "deps/base64/include" }) });
 
     return lib64;
 }
