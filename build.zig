@@ -1,7 +1,7 @@
 const std = @import("std");
 const builtin = @import("builtin");
 const Build = std.Build;
-const CompileStep = std.build.CompileStep;
+const Compile = Build.Step.Compile;
 
 // C Source
 const source_files = &.{
@@ -77,14 +77,14 @@ pub fn generateConfig(b: *Build) !void {
     }
 }
 
-fn buildLibBase64(b: *Build, step: *CompileStep) !*CompileStep {
+fn buildLibBase64(b: *Build, step: *Compile) !*Compile {
     // Reference:
     // 1. https://github.com/kristoff-it/redis/blob/zig/build.zig
     // 2. https://github.com/natecraddock/ziglua/blob/main/build.zig
     const lib64 = b.addStaticLibrary(.{
         .name = "libbase64",
-        .target = step.target,
-        .optimize = step.optimize,
+        .target = step.root_module.resolved_target.?,
+        .optimize = step.root_module.optimize.?,
     });
     // For `__stack_chk_fail`
     lib64.linkLibC();
@@ -109,7 +109,7 @@ fn buildLibBase64(b: *Build, step: *CompileStep) !*CompileStep {
     return lib64;
 }
 
-pub fn buildAndLink(b: *Build, step: *CompileStep) !void {
+pub fn buildAndLink(b: *Build, step: *Compile) !void {
     try generateConfig(b);
     const lib64 = try buildLibBase64(b, step);
     step.linkLibrary(lib64);
@@ -172,9 +172,10 @@ pub fn build(b: *std.Build) void {
     });
 
     const mod = b.addModule("base64", .{
-        .source_file = .{ .path = "src/lib.zig" },
+        .root_source_file = .{ .path = "src/lib.zig" },
     });
-    bench_exe.addModule("base64", mod);
+    mod.addIncludePath(.{ .path = std.fs.path.join(b.allocator, &.{ dir(), "deps/base64/include" }) catch @panic("build failed") });
+    bench_exe.root_module.addImport("base64", mod);
     buildAndLink(b, bench_exe) catch @panic("build failed");
 
     b.installArtifact(bench_exe);
